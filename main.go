@@ -1151,7 +1151,6 @@ func main() {
 	http.HandleFunc("/api/import", handleImport)
 
 	// Start server
-	port := "8081"
 	log.Printf("\n" +
 		"╔═══════════════════════════════════════════════════════════╗\n" +
 		"║                                                           ║\n" +
@@ -1166,11 +1165,22 @@ func main() {
 		"║   ✅ In-Memory Storage (Volatile)                        ║\n" +
 		"║                                                           ║\n" +
 		"╚═══════════════════════════════════════════════════════════╝\n")
-	log.Printf("🚀 Starting VaultX on http://localhost:%s", port)
 	log.Printf("🔒 All data is stored ONLY in memory (lost on restart)")
 	log.Printf("📊 Open your browser and start managing credentials!\n")
 
-	http.ListenAndServe("localhost:"+port, nil)
+	// Get port from environment variable (Render sets this)
+  port := os.Getenv("PORT")
+  if port == "" {
+      port = "8081"  // Default for local development
+  }
+
+  log.Printf("🚀 Starting server on port %s", port)
+
+  // Bind to all interfaces (0.0.0.0), not just localhost
+  err := http.ListenAndServe(":"+port, nil)
+  if err != nil {
+      log.Fatal("Server failed to start:", err)
+  }
 }
 
 func serveFrontend(w http.ResponseWriter, r *http.Request) {
